@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <title>简化版签名demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="js/signature_pad.min.js"></script>
+    <style type="text/css" rel="stylesheet">
+        canvas {
+            border: 1px solid red;
+        }
+
+        .sign-pic, .sign-pic img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="vertical-section-container centered">
+    <h3>简化版签名demo</h3>
+    <canvas id="canvas" width="360" height="180"></canvas>
+
+    <!--图片-->
+    <div class="sign-pic">
+        <h3>签名结果</h3>
+        <img src="" id="signPic"/>
+    </div>
+</div>
+
+<script>
+    var signPen = {
+        init: function (data) {
+            data = data || {};
+            var options = {
+                signPic: data.signPic || "signPic",
+                type: data.type || "image/png",
+                dotSize: data.dotSize || 1,
+                width: data.width || 360,
+                height: data.height || 180,
+                id: data.id || "canvas",
+                backgroundColor: data.backgroundColor || "#ffffff",
+                encoderOptions: data.encoderOptions || 0.85,
+                penColor: data.penColor || "#333333"
+            };
+            for (var key in options) {
+                this[key] = options[key];
+            }
+            var ratio = Math.max(window.devicePixelRatio || 1, 1),
+                    pic = document.getElementById(this.signPic),
+                    canvas = document.getElementById(this.id);
+            canvas.style.width = this.width + 'px';
+            canvas.style.height = this.height + 'px';
+            canvas.width = this.width * ratio;
+            canvas.height = this.height * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            this.canvas = canvas;
+            this.pic = pic;
+            this.signaturePad = new SignaturePad(canvas, {
+                dotSize: this.dotSize,
+                minWidth: this.minWidth,
+                maxWidth: this.maxWidth,
+                backgroundColor: this.backgroundColor,
+                penColor: this.penColor,
+                velocityFilterWeight: this.velocityFilterWeight,
+                onBegin: this.onBegin.bind(this),
+                onEnd: this.onEnd.bind(this)
+            });
+        },
+        onBegin: function () { },
+        onEnd: function () {
+            this.encodeImage();
+        },
+        clear: function () {
+            this.signaturePad.clear();
+            this.encodeImage();
+        },
+        encodeImage: function () {
+            this.image = this.canvas.toDataURL(this.type, this.encoderOptions);
+            this.pic.src = this.image;
+            console.info('this.image', this.image);
+        }
+    };
+    //    签名笔初始化
+    signPen.init();
+</script>
+</body>
+</html>
